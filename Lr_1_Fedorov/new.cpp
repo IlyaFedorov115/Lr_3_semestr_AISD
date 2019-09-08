@@ -1,8 +1,13 @@
 #include <iostream>
 #include <cstring>
 #include <fstream>
+#define QUIT "quit"
 
 using namespace std;
+
+
+/* ПОСМОТРЕТЬ ЧТО ЧИСТИТЬ (МАССИВЫ И Т.Д) +++ ПРОБЛЕМЫ В ВЫВОДЕ ПРОМЕЖУТОЧНЫХ ДАННЫХ И АЛГОРИТМЕ */
+
 
 
 class Vector {
@@ -139,6 +144,16 @@ int is_digit(char* str){
 }
 
 
+void to_lower(string &str){
+    int i = 0;
+    while (str[i]){
+        str[i] = tolower(str[i]);
+        i++;
+    }
+}
+
+const string quit = "end";
+
 int main(int argc, char* argv[]) // на всякий случай
 {
     /*    char ch;
@@ -147,12 +162,10 @@ int main(int argc, char* argv[]) // на всякий случай
         return 1;
     } */
     
-    
-    char exit_str[20];
-    vect vector;
+    Vector obj;
+    string str;
 
     do{
-        string str;
         cout << "Введите длинну вектора: ";
         cin >> str;
        // const char* str2 = str.c_str();
@@ -161,31 +174,31 @@ int main(int argc, char* argv[]) // на всякий случай
             cin >> str;
         }
         obj.size = atoi(str.c_str()); // !!! Почитать, создает ли новую строку
-        int arr[vector.size];
-        vector.arr = arr;
+        
+        obj.data = new int[obj.size];
+        cout << "Введите координаты вектора: \n";
+        for (int i = 0;i < obj.size ;i++)
+         {
+             cout << i+1 << "-e число: ";
+             cin >> str;
+             while (!is_digit(&str[0]))
+              {
+                 cout << "Ошибка ввода. Попробуйте еще раз ввести число: ";
+                 cin >> str;
+              }
+             obj.data[i] = atoi(str.c_str());
+          }
 
-        printf("Введите вектор \n");
-        for (int i=0;i<vector.size;i++){
-            printf("%d число:",i+1);
-            fgets(str, sizeof(str), stdin);
-            while (sscanf(str, "%d", &arr[i]) != 1) {
-                printf("Ошибка ввода. Попробуйте ещё:");
-                fgets(str, sizeof(str), stdin);
-            }
-        }
-
-        change(vector,0,vector.size);
-        print_vector(vector,0,vector.size);
-
-        printf("Введите new для продолжения\n");
-        scanf("%s",exit_str);
-        printf("\n");
-       fgets(str, sizeof(str), stdin);
-    }while(strcmp(exit_str,"new") == 0);
+        change_vector(obj, 0, obj.size);
+        cout << obj;
+        cout << "\n" << "Введите \'next\' для продолжения или \'end\' для выхода: "; //любой символ
+        
+        cin >> str; 
+        cout << "\n";
+        to_lower(str);
+        
+    }while(str != quit);
     
-    
-    
-  
+   
     return 0;
 }
-	
