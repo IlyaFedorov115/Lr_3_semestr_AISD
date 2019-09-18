@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int step = 1;
+int STEP = 1;
 
 class Vector {
  public:
@@ -34,7 +34,6 @@ void readFile(const char *fileName, Vector &obj, int number){
         char buf[SIZE];
         cin.get(buf,SIZE, '\n');
         ifstream in(fileName, ios::in | ios::binary);
-        //return ;
     }
     char buf[20];
     while(in && number != 0 && in.getline(buf, 20, ','))
@@ -47,9 +46,9 @@ void readFile(const char *fileName, Vector &obj, int number){
 }
 
 
-void recDepth(Vector &obj, int pos , int length, int depth){
-    cout <<"\n\n" << "\033[1;32mГлубина \033[0m" << depth;
-    cout <<"\n" << "Шаг "<< step << "  Вектор = "<< obj; step++;
+void recDepth(Vector &obj, int pos , int length, int DEPTH){
+    cout <<"\n\n" << "\033[1;32mГлубина \033[0m" << DEPTH;
+    cout <<"\n" << "Шаг "<< STEP << "  Вектор = "<< obj; STEP++;
     cout << "Обрабатываемая часть : " ;
     for (int i = pos; i < pos+length; i++)
         cout << obj.data[i] << " ";
@@ -57,19 +56,19 @@ void recDepth(Vector &obj, int pos , int length, int depth){
 }
 
 
-void transformVector(Vector &obj, int pos , int length,int depth = 0){
-    recDepth(obj, pos, length, depth);
+void transformVector(Vector &obj, int pos , int length,int DEPTH = 0){
+    recDepth(obj, pos, length, DEPTH);
     if(length > 2)
      {
         if(length % 2 == 1)
            {
-            transformVector(obj,pos,length/2+1, depth+1);
-            transformVector(obj,pos + length/2 +1,length/2, depth+1);
+            transformVector(obj,pos,length/2+1, DEPTH+1);
+            transformVector(obj,pos + length/2 +1,length/2, DEPTH+1);
            }
         else
            {
-             transformVector(obj,pos,length/2,depth+1);
-             transformVector(obj,pos + length/2,length/2, depth+1);
+             transformVector(obj,pos,length/2,DEPTH+1);
+             transformVector(obj,pos + length/2,length/2, DEPTH+1);
            }
     }
 
@@ -79,9 +78,6 @@ void transformVector(Vector &obj, int pos , int length,int depth = 0){
         obj.data[pos] = obj.data[pos+1];
         obj.data[pos+1] = x;
        }
-    else if (length == 2 && (obj.data[pos+1]) >= obj.data[pos]){
-    }   
-
     if(length == 1) return;
 }
 
@@ -122,12 +118,14 @@ int main()
     do{
         Vector obj; 
         cout << "Введите длину вектора: ";
+        
         while (!(cin >> obj.size)|| (cin.peek() != '\n') || obj.size <= 0)
            {
             cin.clear();
             while (cin.get() != '\n');
             cout << "\033[1;31mОшибка ввода. Попробуйте ввести положительное число: \033[0m";
             }
+            
         obj.data = new int[obj.size];
         cout << "Считать из файла - \033[1;34m\'file\' , \033[0m или с консоли - \033[1;34m\'con\': \033[0m";
         cin >> str; toLower(str);
@@ -136,16 +134,19 @@ int main()
             cout << "\033[1;31mОшибка ввода, попробуйте снова: \033[0m" ;
             cin >> str;
           }
-          if (str == file)
+          
+         if (str == file)
             {
               string fileName;  
               cout << "Введите имя файла: ";
               cin >> fileName;
               readFile(fileName.c_str(),obj,obj.size);
             }
-          else {
+         else 
+             {
             readConsole(obj);
              }  
+       
         transformVector(obj, 0, obj.size, 1);
         cout << "\n" << "Результат: " << obj;
         cout << "\n" << "Вы хотите продолжить \033[1;34m[y/n]\033[0m ? : ";
@@ -156,7 +157,7 @@ int main()
             cin >> str; toLower(str);
         }
         cout << "\n";
-        step = 1;
+        STEP = 1;
     }while(str != "n");
     
     return 0;
