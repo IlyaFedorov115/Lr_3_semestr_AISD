@@ -24,7 +24,11 @@ ostream &operator<<(ostream &stream, Vector obj){
     stream << obj.data[i] << ")"<<"\n";
     return stream;
 }
-
+/* 
+if( !isdigit(str[0]) && (str[0] != '-' || str[0] != '+') && !isdigit(str[1]) )
+{
+    // Сообщаем в лог - не число
+} */
 
 void readFile(const char *fileName, Vector &obj, int number){
     char ch; int count = 0;
