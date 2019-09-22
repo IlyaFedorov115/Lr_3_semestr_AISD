@@ -67,7 +67,7 @@ s_expr* retTail(const s_expr* obj){   // PreCondition: not null (obj)
 s_expr* cons(s_expr* hd, s_expr* tl){    // PreCondition: not isAtom (t)
    s_expr* obj;
    if (isAtom(tl)) 
-     { cerr << "Error: Tail(nil) \n"; exit(1);}
+     { cerr << "Error: Tail(nil) 45\n"; exit(1);}
    obj = new s_expr; 
    if ( obj == NULL)	
      {cerr << "Memory not enough\n"; exit(1); } 	// не выделена динамическая память
@@ -123,7 +123,7 @@ void readConsole(s_expr*& obj){
 //...........................
 void read_s_expr(char prev, s_expr*& obj){   //prev - ранее прочитанный символ}
   if (prev == ')') 
-     {cerr << " ! List.Error 1 " << endl; exit(1); } 
+     {cerr << " ! List.Error 1 " << endl; /* exit(1); */ } 
   else if ( prev != '(' ) 
     {
      obj = makeAtom(prev);
@@ -144,7 +144,7 @@ void read_seq (s_expr*& obj){
      obj = NULL;
   else {
 	read_s_expr(x, p1);
-	readConsole(p2);
+	read_seq(p2);
 	obj = cons(p1, p2);
 	} 
 } 
@@ -198,7 +198,13 @@ s_expr* copy(const s_expr* x)
 
 int main()
 {
-    cout<<"Hello World";
+    cout<<"Hello World \n";
+    s_expr* s1, s2, s3;
+	cout << "введите list1:" << endl;
+	readConsole (s1);
+	cout << "введен list1: " << endl;
+	write_lisp (s1);
+	cout << endl;
 
     return 0;
 }
