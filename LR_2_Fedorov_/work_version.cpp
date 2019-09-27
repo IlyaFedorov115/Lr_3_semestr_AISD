@@ -5,7 +5,7 @@ struct s_expr;
 void readConsole(s_expr*&);
 void write_lisp (const s_expr* x);
 void write_seq (const s_expr* x);
-void read_s_expr(char , s_expr*& ); 
+void read_s_expr(char, s_expr*& ); 
 void read_seq (s_expr*& );
 //struct s_expr; // структура узла списка
 
@@ -183,10 +183,29 @@ s_expr* copy(const s_expr* x)
 	    return cons(copy(retHead(x)), copy(retTail(x)));
 } //end copy-lisp
 
+s_expr* concat (const s_expr* y, const s_expr* z)
+	{
+	if (isNull(y)) return copy(z);
+	else return cons(copy(retHead(y)), concat(retTail(y), z));
+} // end concat
 
 
-
-
+s_expr* alignment(s_expr* obj){
+    if (isNull(obj)) 
+        return NULL;
+    else 
+      {
+        if (isAtom(obj)) 
+           cons(obj, NULL);
+        else 
+          {
+            if (isAtom(retHead(obj))) 
+               cons(retHead(obj),alignment(retTail(obj)));
+            else   // Not ATOM (HEAD(S))
+               concat(alignment(retHead(obj)), alignment(retTail(obj)));
+          }
+      }
+}
 
 
 
@@ -203,6 +222,7 @@ int main()
 	cout << "введите list1:" << endl;
 	readConsole (s1);
 	cout << "введен list1: " << endl;
+	s1 = alignment(s1);
 	write_lisp (s1);
 	cout << endl;
 
