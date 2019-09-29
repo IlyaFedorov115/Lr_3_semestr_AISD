@@ -1,0 +1,284 @@
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+struct s_expr;
+void readConsole(istream &,s_expr*&);
+void write_lisp (ostream &stream,const s_expr* x);
+void write_seq (ostream &stream,const s_expr* x);
+void read_s_expr(istream &,char, s_expr*& ); 
+void read_seq (istream &,s_expr*& );
+//struct s_expr; // структура узла списка
+
+struct two_ptr{ // 
+	s_expr *head;
+	s_expr *tail;
+};	
+
+struct s_expr{
+  bool tag; // true: atom, false: pair
+  union  
+	 {
+	   char atom;
+	   two_ptr pair;	
+	  }node;		//end union node
+};			 
+
+	
+typedef s_expr *lisp;
+
+bool isAtom(const s_expr* obj){	
+    if(obj == NULL) return false;
+	else return (obj->tag);
+}
+
+bool isNull(const s_expr* obj){ 
+    return (obj == NULL);
+}
+
+
+s_expr* retHead(const s_expr* obj){      // PreCondition: not null (obj)
+	if (obj != NULL) 
+	 {
+	   if (!isAtom(obj)) return obj->node.pair.head;
+	   else { cerr << "Error: Head(atom) \n";  exit(1); }
+	 }
+	else 
+	 { 
+	  cerr << "Error: Head(nil) \n"; exit(1);
+	 }
+}
+
+
+s_expr* retTail(const s_expr* obj){   // PreCondition: not null (obj)
+   if (obj != NULL)
+     {
+      if (!isAtom(obj))   return obj->node.pair.tail;
+	  else { cerr << "Error: Tail(atom) \n"; exit(1); }
+     }
+   else 
+	  { 
+	    cerr << "Error: Tail(nil) \n";exit(1);
+	  }
+}
+
+
+
+
+s_expr* cons(s_expr* hd, s_expr* tl){    // PreCondition: not isAtom (t)
+   s_expr* obj;
+   if (isAtom(tl)) 
+     { cerr << "Error: Tail(nil) 45\n"; exit(1);}
+   obj = new s_expr; 
+   if ( obj == NULL)	
+     {cerr << "Memory not enough\n"; exit(1); } 	// не выделена динамическая память
+   obj->tag = false;
+   obj->node.pair.head = hd;
+   obj->node.pair.tail = tl;
+   return obj;	
+}
+
+
+
+s_expr* makeAtom(char x){
+    s_expr* obj;
+	obj = new s_expr;
+	obj->tag = true;
+	obj->node.atom = x;
+	return obj;
+}
+
+
+void destroy (s_expr* obj) {
+   if (obj != NULL) 
+     {
+	  if (!isAtom(obj)) 
+	     {
+			destroy(retHead(obj));
+			destroy(retTail(obj));
+		 } 
+	 delete obj;
+	}
+	else cout << "Obj is nil "; // obj == NULL
+}
+
+char getAtom(const s_expr* obj){
+   if (!isAtom(obj)) 
+    { 
+     cerr << "Error: getAtom(obj) for !isAtom(obj) \n";
+     exit(1);
+    }
+   else return (obj->node.atom);
+}
+
+
+/// ФУНКЦИИ СЧИТЫВАНИЯ//...........................//...........................
+
+void readConsole(istream &stream, s_expr*& obj){
+  char x;
+  do 
+    stream >> x;
+  while (x == ' ');
+  read_s_expr(stream , x , obj);
+} 
+
+
+void read_s_expr(istream &stream,char prev, s_expr*& obj){   //prev - ранее прочитанный символ}
+  if (prev == ')') 
+     {cerr << "\033[1;31mОшибка!\033[0m Символ \033[1;34m\')\'\033[0m встречен раньше \033[1;34m\'(\'\033[0m " << endl; exit(1);  } 
+  else if ( prev != '(' ) 
+    {
+     obj = makeAtom(prev);
+    }  
+  else 
+     read_seq(stream,obj);
+} 
+
+
+void read_seq(istream &stream,s_expr*& obj){	
+  char x; 
+  s_expr* p1;
+  s_expr* p2;
+  if (!(stream >> x)) {cerr << "\033[1;31mОшибка!\033[0m Не найден конец списка." << endl; exit(1);}
+  while  (x == ' ') 
+	 stream >> x;
+  if (x == ')') 
+     obj = NULL;
+  else {
+	read_s_expr(stream,x, p1);
+	read_seq(stream,p2);
+	obj = cons(p1, p2);
+	} 
+} 
+
+
+//...........................//...........................//...........................//...........................
+// ѕроцедура вывода списка с обрамл¤ющими его скобками - write_lisp,
+//  а без обрамл¤ющих скобок - write_seq
+
+
+void write_lisp (ostream &stream,const s_expr* x){   //пустой список выводитс¤ как () 
+	if (isNull(x)) 
+	   stream << " ()";
+	else if (isAtom(x)) 
+	   stream << ' ' << x->node.atom;
+	else { //непустой список} 
+	   stream << " (" ;
+	   write_seq(stream,x);
+	   stream << " )";
+	}
+} // end write_lisp
+
+//...........................
+void write_seq (ostream &stream,const s_expr* x)  
+{//выводит последовательность элементов списка без обрамл¤ющих его скобок
+	if (!isNull(x)) {
+		write_lisp(stream,retHead(x)); 
+		write_seq(stream,retTail(x));
+	}
+}
+//...........................
+s_expr* copy(const s_expr* x)
+{	if  (isNull(x)) 
+        return NULL;
+	else if (isAtom(x)) 
+	    return makeAtom(x->node.atom);
+	else 
+	    return cons(copy(retHead(x)), copy(retTail(x)));
+} //end copy-lisp
+
+s_expr* concat (const s_expr* y, const s_expr* z)
+	{
+	if (isNull(y)) return copy(z);
+	else return cons(copy(retHead(y)), concat(retTail(y), z));
+} // end concat
+
+
+s_expr* alignment(s_expr* obj){
+    if (isNull(obj)) 
+        return NULL;
+    else 
+      {
+        if (isAtom(obj)) 
+           cons(obj, NULL);
+        else 
+          {
+            if (isAtom(retHead(obj))) 
+               cons(retHead(obj),alignment(retTail(obj)));
+            else   // Not ATOM (HEAD(S))
+               concat(alignment(retHead(obj)), alignment(retTail(obj)));
+          }
+      }
+}
+
+string file = "f";
+string con = "c";
+
+void toLower(string &str){
+    int i = 0;
+    while (str[i]){
+        str[i] = tolower(str[i]);
+        i++;
+    }
+}
+
+
+int main()
+{
+   /* cout<<"Hello World \n";
+    s_expr* s1, s2, s3;
+	cout << "введите list1:" << endl;
+	ifstream in("text");
+	ofstream on("text1");
+	readConsole(cin,s1);
+	cout << "введен list1: " << endl;
+	s1 = alignment(s1);
+	write_lisp(cout,s1);
+	cout << endl; */
+    string str;
+    do{
+        s_expr* obj;
+        cout << "Считать из файла - \033[1;34m\'f\' , \033[0m или с консоли - \033[1;34m\'c\': \033[0m";
+        cin >> str; toLower(str);
+        while (str!=file && str!=con)
+          {
+            cout << "\033[1;31mОшибка ввода, попробуйте снова: \033[0m" ;
+            cin >> str;
+          }
+        if (str == file)
+            {
+              string fileName;  
+              cout << "Введите имя файла:";
+              cin >> fileName;
+              ifstream in(fileName.c_str(),ios::in | ios::binary);
+              while(!in)
+                  {
+                   cout <<"\033[1;31mНе удается открыть файл.Введите корректное имя: \n\033[0m";
+                   cin >> fileName;
+                   in.open(fileName.c_str(),ios::in | ios::binary);
+                  }
+              readConsole(in,obj);
+            }
+         else 
+            {
+              readConsole(cin,obj);
+            } 
+        s1 = alignment(s1);
+        cout << "\n" << "Результат: " << obj;
+        cout << "\n" << "Вы хотите продолжить \033[1;34m[y/n]\033[0m ? : ";
+        cin >> str;
+        toLower(str);
+        while (str!=stop && str!=again){
+            cout << "Ошибка, введите [y/n] :";
+            cin >> str; toLower(str);
+        }
+        cout << "\n";
+        step = 1;
+    }while(str != "n");
+
+
+
+
+
+    return 0;
+}
