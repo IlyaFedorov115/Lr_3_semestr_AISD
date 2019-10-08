@@ -20,6 +20,7 @@ class stack{
   //  int size;
   public:
     stack();
+    int topelem();
     //stack(const stack &ob);
     //~stack();
     bool isEmpty();
@@ -172,6 +173,11 @@ void fixed(){
 
 
 
+int stack::topelem(){
+    return topElem;
+}
+
+
 int main(){
     string str;
     stack obj;
@@ -221,28 +227,30 @@ do{
         } 
     cout << "\n\n СТРОКА  "<<buf << "\n";
     cout << "\nдлина строки = " << strlen(buf) << endl;
-    for (int i = 0; i < strlen(buf); i++)
+    int i = 0;
+    while(i < strlen(buf)) 
       {
-        cout << "шаг " << step++ << " считаный символ " << buf[i] << endl;
+        cout << "шаг " << step++ << " считаный символ " << buf[i] << "Topelem = " << obj.topelem()  << endl;
         if (buf[i] == '+')
           {
             if (obj.isOne() || obj.isEmpty())
               {
+                 cout << obj.topelem(); 
                  cout << "\nОшибка! В стэке не хватает чисел!"; exit(1);
               }
             res = obj.pop2() + obj.pop2();
-            obj.push(res);
+            obj.push(res); i++;
           }
-        if (buf[i] == '*')
+       else if (buf[i] == '*')
           {
             if (obj.isOne())
               {
                 cout << "\nОшибка! В стэке не хватает чисел!"; exit(1);
               }
             res = obj.pop2() * obj.pop2();
-            obj.push(res);              
+            obj.push(res);  i++;            
           }
-        if (buf[i] == '-' && !(isdigit(buf[i+1])))
+       else if (buf[i] == '-' && !(isdigit(buf[i+1])))
           {
               
             if (obj.isOne())
@@ -251,9 +259,9 @@ do{
               }
             int a = obj.pop2();
             res = obj.pop2() - a;
-            obj.push(res);       
+            obj.push(res);  i++;   
           } 
-        if (buf[i] == '^')
+       else if (buf[i] == '^')
           {
             if (obj.isOne())
               {
@@ -261,28 +269,34 @@ do{
               }
             int a = obj.pop2();
             res = pow(obj.pop2(), a);
-            obj.push(res);
+            obj.push(res); i++;
           }          
-        if ((buf[i] == '-') && (buf[i+1] >= '0') && (buf[i+1] <= '9'))
+       else if ((buf[i] == '-') && (buf[i+1] >= '0') && (buf[i+1] <= '9'))
             { 
-              obj.push(0);
-              while ((buf[i] >= '0') && (buf[i] <= '9')) 
-			  {
-			    obj.push(10*obj.pop2() + (buf[i++]-'0'));
-			  } 
-			  obj.push(obj.pop2()*(-1));
+              char buf2[50];
+              buf2[0] = buf[i];
+              int j = 0;
+              while(isdigit(buf[i])){
+                  buf2[j] = buf[i];
+                  i++; j++;
+              }
+              obj.push(atoi(buf2));    
               cout << "\nПоложили в стэк число:" << obj.top() << "\n";
             } 
-        if ((buf[i] >= '0') && (buf[i] <= '9') || (buf[i] == '+') && (buf[i+1] >= '0') && (buf[i+1] <= '9'))
+       else if ((buf[i] >= '0') && (buf[i] <= '9') || (buf[i] == '+') && (buf[i+1] >= '0') && (buf[i+1] <= '9'))
             { 
-              obj.push(0);
-              while ((buf[i] >= '0') && (buf[i] <= '9')) 
-			  {
-			    obj.push(10*obj.pop2() + (buf[i++]-'0'));
-			  } 
+              char buf2[50];
+              buf2[0] = buf[i];
+              int j = 0;
+              while(isdigit(buf[i])){
+                  buf2[j] = buf[i];
+                  i++; j++;
+              }
+              obj.push(atoi(buf2)); 
+              
               cout << "\nПоложили в стэк число:" << obj.top() << "\n";
             }            
-        if (buf[i] == ' '){
+       else if (buf[i] == ' '){
             while (buf[i] == ' '){
                 cout << "\nПРОБЕЛ";
                 i++;
