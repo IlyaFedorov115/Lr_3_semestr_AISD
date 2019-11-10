@@ -93,6 +93,7 @@ Node* makeTree(list<Node*> &t){
 
 void decoder(ifstream &F, Node* root){
 	 Node *p = root;
+	 cout << "\n Раскодированное сообщение: ";
       while(!F.eof()){ 
         char ch = F.get();
         if (ch == '1')
@@ -101,6 +102,8 @@ void decoder(ifstream &F, Node* root){
 		    p = p->left;
 		else if (ch == ' ')
 	       continue;
+	    else if (ch == EOF)
+	        break;
 	    else
 	       cout << "\nОшибка!! Неправильное кодирование сообщения!";
 		if (p->left == NULL && p->right == NULL) {
@@ -116,15 +119,19 @@ void decoder(ifstream &F, Node* root){
 
 
 void printCode(){
+    int k = 0;
+    cout << "\nКоды символов для данного текста: \n";
     map<char,vector<bool> >::iterator ii;
-    for (ii = table.begin(); ii != table.end(); ++ii){
+    for (ii = table.begin(); ii != table.end(); ++ii, k++){
+        if (k == 3) { k = 0; cout << "\n";}
         char c = ii->first;
-        cout << "\n" << c << " - ";
+        cout <<"\'" <<c <<"\'" << " - ";
         vector<bool> x = table[c];
         for (int i = 0; i < x.size(); i++)
             cout << x[i];
-        //cout <<""<< ii->first << "" <<" -- "<< ii->second<< endl;
+        cout << "\t";    
     }
+    cout <<"\n";
 }
 
 
@@ -134,8 +141,7 @@ void printCrypt(ifstream& f){
     f.clear(); f.seekg(0); // перемещаем указатель снова в начало файла
 	ofstream outF("output.txt", ios::out | ios::binary);
     
-    outF <<"\nЗакодированное сообщение: ";
-    cout << "\nЗакодированное сообщение: ";	
+    cout <<"\nЗакодированное сообщение: ";	
     int count = 0; char buf = 0;
     while (!f.eof()){ 
       char c = f.get();                //считываем символ
@@ -145,10 +151,26 @@ void printCrypt(ifstream& f){
 	    outF << x[i];
 	  }
     }
-
+    outF.close();
 }
 
 
+void period(ifstream& f, map<char,int> &m){
+    int k = 0;
+    cout << "Частоты встречаемости символов: \n";
+    while (!f.eof()){                //считываем из файла и заносим частоту 
+	   char c = f.get();            //  getc getch
+	   if (c == EOF)
+	     continue;
+	   m[c]++;
+	}
+	map<char,int>::iterator i;                  //вывод полученных частот встречаемости
+    for (i = m.begin(); i != m.end(); ++i, k++){
+        if (k == 3) { k = 0; cout << "\n"; }
+        cout <<"\'"<< i->first << "\'" <<" -- "<< i->second<< "\t";
+    }
+    cout << "\n\n";
+}
 
 ///////////////////////////////////////////////////////////////
 int main (int argc, char *argv[]){
@@ -164,12 +186,14 @@ int main (int argc, char *argv[]){
         f.open(fileName.c_str(),ios::in | ios::binary);
     }
     
+    
 	map<char,int> m;
-	while (!f.eof()){           //считываем из файла и заносим частоту 
-	   char c = f.get(); //  getc getch
+	map<char,int>::iterator i;
+	period(f,m);
+/*	while (!f.eof()){                //считываем из файла и заносим частоту 
+	   char c = f.get();            //  getc getch
 	   if (c == EOF)
 	    continue;
-	   cout << " " << c;
 	   m[c]++;
 	}
 
@@ -177,7 +201,7 @@ int main (int argc, char *argv[]){
     for (i = m.begin(); i != m.end(); ++i){
         cout <<"\'"<< i->first << "\'" <<" -- "<< i->second<< endl;
     }
-    
+  */  
     
     list<Node*> t;
     for (i = m.begin(); i != m.end(); ++i){           //создаем список символов с их частотой
@@ -187,7 +211,7 @@ int main (int argc, char *argv[]){
         t.push_back(p);                    //добавить в конец
     }
     
-    
+   /* 
     while (t.size() != 1){                    //создаем дерево Хаффмана
         t.sort(MyCompare());                     //каждый раз пересортируем список
         Node* sonL = t.front();
@@ -198,13 +222,16 @@ int main (int argc, char *argv[]){
         Node* parent = new Node(sonL, sonR);
         t.push_back(parent);
     }
+           */    
+
+    Node* root = makeTree(t);
+   // Node* root = t.front();                    //получаем корень
+   // printTree(root,1);
     
-    //Node* root = makeTree(t);
-    Node* root = t.front();                    //получаем корень
     
     BuildTable(root);                         //заполняем table кодами хаффмана для символов
     
-    
+    /*
     map<char,vector<bool> >::iterator ii;
     for (ii = table.begin(); ii != table.end(); ++ii){
         char c = ii->first;
@@ -213,20 +240,20 @@ int main (int argc, char *argv[]){
         for (int i = 0; i < x.size(); i++)
             cout << x[i];
         //cout <<""<< ii->first << "" <<" -- "<< ii->second<< endl;
-    }
+    }  */
 
- // printCode(); можно заменить т.к. глобальный вект
+    printCode();// можно заменить т.к. глобальный вект
 		
 ////// Выводим коды в файл output.txt
 
-    f.clear(); f.seekg(0); // перемещаем указатель снова в начало файла
+ //   f.clear(); f.seekg(0); // перемещаем указатель снова в начало файла
     
-    //printCrypt(f);     Без clear и seekg
+    printCrypt(f);  //   Без clear и seekg
 
-	ofstream outF("output.txt", ios::out | ios::binary);
+//	ofstream outF("output.txt", ios::out | ios::binary);
 
     f.close();
-	outF.close(); 
+//	outF.close(); 
 	
 	
 	
