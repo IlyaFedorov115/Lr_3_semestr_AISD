@@ -273,7 +273,7 @@ Node* FanoSh(ifstream &f, const char* output, int &countStep, int &countSymbol){
         S += wperiod[i]->a;
         E++;
     }
-    Node* root = F_Sh(wperiod, S, 0, E, Code);
+    Node* root = F_Sh(wperiod, S, 0, E-1, Code);
       
     BuildTable(root);                        //можно вывести коды
    	 
