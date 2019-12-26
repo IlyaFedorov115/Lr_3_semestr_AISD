@@ -1,11 +1,3 @@
-/******************************************************************************
-
-                              Online C++ Compiler.
-               Code, Compile, Run and Debug C++ program online.
-Write your code in this editor and press "Run" button to compile and execute it.
-
-*******************************************************************************/
-
 #include <iostream>
 #include <vector>
 #include <map>
@@ -31,7 +23,7 @@ double AITKEN(int n, int m, double* x, double* y) {
 
 	if (n == 0) s = y[m];
 	else {
-		s = ((z - x[m - n]) * AITKEN(n - 1, m, x, y) - (z - x[m]) * AITKEN(n - 1, m - 1, x, y)) / (x[m] - x[m - n]);
+		s =((z - x[m - n])*AITKEN(n - 1, m, x, y)-(z-x[m])*AITKEN(n-1, m-1, x, y))/(x[m]-x[m-n]);
 	}
 
 	return s;
@@ -61,7 +53,7 @@ int main() {
 	char tmp;
 	ifstream in;
 	ofstream out;
-	in.open("input.txt");
+	in.open("dots.txt");
 	cout.precision(15);
 
 	for (int i = 0; i < n; i++) {
@@ -71,10 +63,9 @@ int main() {
 		in >> y[i];
 	}
 	double newton = INEWTON(x, y);
-	double ait = AITKEN(11, 11, x, y);
+	double ait = AITKEN(10, 10, x, y);
 	out << newton << endl << ait;
 	cout << "\nРезультат: " << newton<< "\nРезультат: " << ait;
 		
 	return 0;	
 }
-
